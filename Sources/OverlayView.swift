@@ -42,8 +42,13 @@ final class OverlayView: NSView {
     override func layout() {
         super.layout()
         tintLayer.frame  = bounds
-        // Oversized to allow jitter translation without exposing edges
-        noiseLayer.frame = bounds.insetBy(dx: -200, dy: -200)
+        
+        if Bundle.main.path(forResource: "grain", ofType: "jpg") != nil {
+            noiseLayer.frame = bounds
+        } else {
+            // Oversized to allow jitter translation without exposing edges
+            noiseLayer.frame = bounds.insetBy(dx: -200, dy: -200)
+        }
     }
 
     // MARK: Public API
@@ -111,20 +116,29 @@ final class OverlayView: NSView {
         if intensity > 0 {
             if let path = Bundle.main.path(forResource: "grain", ofType: "jpg"),
                let image = NSImage(contentsOfFile: path) {
-                noiseLayer.backgroundColor = NSColor(patternImage: image).cgColor
+                noiseLayer.backgroundColor = NSColor.clear.cgColor
+                noiseLayer.contents = image
+                noiseLayer.contentsGravity = .resizeAspectFill
                 noiseLayer.opacity = Float(min(1.0, intensity * 2.0))
                 
                 // Use a blending mode for the grain image (e.g., overlay or soft light)
                 if let filter = CIFilter(name: "CISoftLightBlendMode") {
                     noiseLayer.compositingFilter = filter
                 }
+                
+                // Do not animate custom images
+                noiseLayer.removeAnimation(forKey: "jitter")
+                noiseLayer.frame = bounds
             } else {
+                noiseLayer.contents = nil
                 noiseLayer.backgroundColor = generateFilmGrain(intensity: intensity)?.cgColor
                 noiseLayer.opacity = 0.8
                 noiseLayer.compositingFilter = nil
+                noiseLayer.frame = bounds.insetBy(dx: -200, dy: -200)
+                addJitterAnimationIfNeeded()
             }
-            addJitterAnimationIfNeeded()
         } else {
+            noiseLayer.contents = nil
             noiseLayer.backgroundColor = NSColor.clear.cgColor
             noiseLayer.removeAnimation(forKey: "jitter")
         }
