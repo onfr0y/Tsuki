@@ -32,7 +32,7 @@ final class AppState: ObservableObject {
     // MARK: Tunable Parameters
 
     @Published var blurStrength: Double    = 50.0  { didSet { markCustom() } }
-    @Published var tintColor: Color        = .clear { didSet { markCustom() } }
+    @Published var tintColor: Color        = .black { didSet { markCustom() } }
     @Published var tintOpacity: Double     = 0.0   { didSet { markCustom() } }
     @Published var grainIntensity: Double  = 0.08  { didSet { markCustom() } }
     @Published var isMonochrome: Bool      = false  { didSet { markCustom() } }
@@ -96,21 +96,21 @@ final class AppState: ObservableObject {
         switch preset {
         case .ambient:
             blurStrength   = 50.0
-            tintColor      = .clear
+            tintColor      = .black
             tintOpacity    = 0.0
             grainIntensity = 0.08
             isMonochrome   = false
 
         case .deep:
             blurStrength   = 90.0
-            tintColor      = .clear
+            tintColor      = .black
             tintOpacity    = 0.0
             grainIntensity = 0.15
             isMonochrome   = false
 
         case .monochrome:
             blurStrength   = 40.0
-            tintColor      = .clear
+            tintColor      = .black
             tintOpacity    = 0.0
             grainIntensity = 0.05
             isMonochrome   = true
