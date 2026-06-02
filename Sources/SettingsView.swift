@@ -35,6 +35,17 @@ struct SettingsView: View {
             Toggle("", isOn: $state.isEnabled)
                 .toggleStyle(.switch)
                 .controlSize(.mini)
+                .labelsHidden()
+            
+            Button(action: {
+                NSApplication.shared.terminate(nil)
+            }) {
+                Image(systemName: "power")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(.secondary)
+            }
+            .buttonStyle(.plain)
+            .padding(.leading, 8)
         }
         .padding(.bottom, 4)
     }

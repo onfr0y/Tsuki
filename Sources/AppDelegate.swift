@@ -15,7 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: UI References
 
     private var statusItem: NSStatusItem!
-    private var settingsWindow: NSWindow?
+    private var popover: NSPopover!
     private var overlayWindows: [NSWindow] = []
     private var timer: Timer?
 
@@ -74,44 +74,37 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func setupMenuBar() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        statusItem.button?.title = "tsuki"
+        
+        if let button = statusItem.button {
+            button.title = "tsuki"
+            button.action = #selector(togglePopover(_:))
+        }
 
-        let menu = NSMenu()
-        menu.addItem(NSMenuItem(
-            title: "Control Centre…",
-            action: #selector(showSettings),
-            keyEquivalent: ","
-        ))
-        menu.addItem(.separator())
-        menu.addItem(NSMenuItem(
-            title: "Quit",
-            action: #selector(NSApplication.terminate(_:)),
-            keyEquivalent: "q"
-        ))
-        statusItem.menu = menu
+        popover = NSPopover()
+        popover.contentSize = NSSize(width: 320, height: 500)
+        popover.behavior = .transient
+        popover.contentViewController = NSHostingController(rootView: SettingsView(state: state))
     }
 
     // MARK: - Settings Window
 
-    @objc func showSettings() {
-        if settingsWindow == nil {
-            let host = NSHostingController(rootView: SettingsView(state: state))
-            let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 340, height: 500),
-                styleMask: [.titled, .closable, .fullSizeContentView],
-                backing: .buffered,
-                defer: false
-            )
-            window.title                     = "tsuki Aesthetic Centre"
-            window.isReleasedWhenClosed       = false
-            window.titlebarAppearsTransparent = true
-            window.contentViewController      = host
-            window.center()
-            window.level = .floating
-            settingsWindow = window
+    @objc func togglePopover(_ sender: AnyObject?) {
+        if let button = statusItem.button {
+            if popover.isShown {
+                popover.performClose(sender)
+            } else {
+                popover.show(relativeTo: button.bounds, of: button, preferredEdge: NSRectEdge.minY)
+                NSApp.activate(ignoringOtherApps: true)
+            }
         }
-        settingsWindow?.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    @objc func showSettings() {
+        guard let button = statusItem.button else { return }
+        if !popover.isShown {
+            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+            NSApp.activate(ignoringOtherApps: true)
+        }
     }
 
     // MARK: - Overlay Window Management
