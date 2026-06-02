@@ -18,9 +18,12 @@ mkdir -p "${RESOURCES_DIR}"
 echo "Compiling Swift code..."
 swiftc ${SRC_DIR}/*.swift -o "${MAC_OS_DIR}/${APP_NAME}"
 
-# Copy icon if available
+# Copy resources if available
 if [ -f "AppIcon.icns" ]; then
     cp "AppIcon.icns" "${RESOURCES_DIR}/AppIcon.icns"
+fi
+if [ -f "grain.jpg" ]; then
+    cp "grain.jpg" "${RESOURCES_DIR}/grain.jpg"
 fi
 
 # Create Info.plist

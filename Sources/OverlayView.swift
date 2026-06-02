@@ -109,7 +109,20 @@ final class OverlayView: NSView {
         lastNoiseIntensity = intensity
 
         if intensity > 0 {
-            noiseLayer.backgroundColor = generateFilmGrain(intensity: intensity)?.cgColor
+            if let path = Bundle.main.path(forResource: "grain", ofType: "jpg"),
+               let image = NSImage(contentsOfFile: path) {
+                noiseLayer.backgroundColor = NSColor(patternImage: image).cgColor
+                noiseLayer.opacity = Float(min(1.0, intensity * 2.0))
+                
+                // Use a blending mode for the grain image (e.g., overlay or soft light)
+                if let filter = CIFilter(name: "CISoftLightBlendMode") {
+                    noiseLayer.compositingFilter = filter
+                }
+            } else {
+                noiseLayer.backgroundColor = generateFilmGrain(intensity: intensity)?.cgColor
+                noiseLayer.opacity = 0.8
+                noiseLayer.compositingFilter = nil
+            }
             addJitterAnimationIfNeeded()
         } else {
             noiseLayer.backgroundColor = NSColor.clear.cgColor
